@@ -218,6 +218,9 @@ class swarm_gui(QWidget):
         self.onlyInt = QIntValidator()
         self.ie_x.setValidator(self.onlyInt)
         self.ie_y.setValidator(self.onlyInt)
+        initial_ie_point = swarm.get_interest_point()
+        self.ie_x.setText(str(initial_ie_point[0]))
+        self.ie_y.setText(str(initial_ie_point[1]))
         self.interest_point_layout.addWidget(self.ie_x)
         self.interest_point_layout.addWidget(self.ie_y)
         self.interest_point_btn = QPushButton(text="Set")
@@ -283,6 +286,7 @@ class update_plot_thread(QThread):
     def __del__(self):
         self.wait()
 
+
     def run(self):
         global swarm
         while True:
@@ -295,19 +299,6 @@ app = QApplication([])
 main_window = QMainWindow()
 update_plot_signal = xy_signal()
 ui = swarm_gui("Swarm Particle Optimization", update_plot_signal)
-
-def set_ie_btn_handler():
-    global swarm
-    global ui
-    try:
-        swarm.set_interest_point(np.asarray(ui.get_interest_point(), dtype=int))
-        swarm = swarm_opt(init_params, swarm_params, interest_point)
-    except ValueError as ve:
-        print("Interest point values are invalid.")
-        return
-
-
-#ui.set_ie_btn_handler(set_ie_btn_handler)
 thread = update_plot_thread(update_plot_signal)
 thread.start()
 sys.exit(app.exec_())
